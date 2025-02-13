@@ -15,7 +15,6 @@ import { useState } from "react"
 import Image from "next/image"
 import DatePicker from "react-datepicker";
 import { useUploadThing } from '@/lib/uploadthing'
-
 import "react-datepicker/dist/react-datepicker.css";
 import { Checkbox } from "../ui/checkbox"
 import { useRouter } from "next/navigation"
@@ -30,7 +29,7 @@ type EventFormProps = {
   eventId?: string
 }
 
-const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
+const EventForm = ({ userId, type, eventId }: EventFormProps) => {
   const [files, setFiles] = useState<File[]>([])
   const initialValues = event && type === 'Update' 
     ? { 
@@ -50,7 +49,37 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
   })
  
   async function onSubmit(values: z.infer<typeof eventFormSchema>) {
-  console.log(values);
+  const eventData = values;
+  console.log(eventData);
+  let uploadImageUrl = values.imageUrl;
+  if(files.length > 0) {
+    console.log("files: ",files);
+    const uploadedImages = await startUpload(files);
+
+    console.log("uploadedImage: ",uploadedImages)
+
+    if( !uploadedImages) {
+      return;
+    }
+    uploadImageUrl = uploadedImages[0].url;
+  }
+
+  if(type == 'Create'){
+    try{
+      // const newEvent = await = createEvent({
+      //   event: {...values, imageUrl: uploadImageUrl },
+      //   userId,
+      //   path: "/profile"
+      // })
+
+      // if(newEvent){
+      //   form.reset();
+      //   router.push(`/events/${newEvent._id}`)
+      // }
+    } catch(error) {
+      console.log(error)
+    }
+  }
   }
 
   return (
@@ -157,7 +186,7 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
                       <p className="ml-3 whitespace-nowrap text-grey-600">Start Date:</p>
                       <DatePicker 
                         selected={field.value} 
-                        onChange={(date: Date) => field.onChange(date)} 
+                        onChange={(date: Date) => field.onChange(date )} 
                         showTimeSelect
                         timeInputLabel="Time:"
                         dateFormat="MM/dd/yyyy h:mm aa"
