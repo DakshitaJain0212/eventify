@@ -1,3 +1,4 @@
 {
-    "autoimport.absolute": true
+    "autoimport.absolute": true,
+    "editor.formatOnPaste": true
 }

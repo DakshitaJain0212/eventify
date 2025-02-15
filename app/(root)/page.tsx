@@ -1,8 +1,17 @@
+import Collection from "@/components/shared/Collection";
 import { Button } from "@/components/ui/button";
+import { getAllEvents } from "@/lib/actions/event.actions";
 import { SignInButton } from "@clerk/nextjs";
 import Image from 'next/image'
 import Link from 'next/link'
-export default function Home() {
+export default async function Home() {
+
+  const events = await getAllEvents({
+    query: '',
+    category: '',
+    page: 1,
+    limit: 6
+  })
  
   return (
       <>
@@ -36,15 +45,15 @@ export default function Home() {
           <CategoryFilter /> */}
         </div>
 
-       {/*  <Collection 
+        <Collection 
           data={events?.data}
           emptyTitle="No Events Found"
           emptyStateSubtext="Come back later"
           collectionType="All_Events"
           limit={6}
-          page={page}
-          totalPages={events?.totalPages}
-        /> */}
+          page={0}
+          totalPages={3}
+        />
       </section>
     </>
   );
