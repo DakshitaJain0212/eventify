@@ -6,6 +6,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 export default async function Home() {
 
+  console.log(process.env.WEBHOOK_SECRET);
+
   const events = await getAllEvents({
     query: '',
     category: '',
