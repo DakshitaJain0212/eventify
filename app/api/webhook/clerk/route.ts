@@ -2,7 +2,6 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { createUser, deleteUser, updateUser } from '@/lib/actions/user.actions'
-
 import { clerkClient } from '@clerk/nextjs'
 import { NextResponse } from 'next/server'
 
@@ -52,12 +51,12 @@ export async function POST(req: Request) {
   }
 
   // Extract event data
-  
+  const { id } = evt.data;
   const eventType = evt.type;
 
   try {
     if (eventType === 'user.created') {
-      const {id, email_addresses, image_url, first_name, last_name, username } = evt.data;
+      const { id, email_addresses, image_url, first_name, last_name, username } = evt.data;
 
       const user = {
         clerkId: id,
@@ -74,6 +73,9 @@ export async function POST(req: Request) {
         await clerkClient.users.updateUserMetadata(id, {
           publicMetadata: {
             userId: newUser._id,
+            profile: {
+              photo: image_url ?? '', // Ensures it's inside an object
+            },
           },
         });
       }
@@ -97,16 +99,19 @@ export async function POST(req: Request) {
     }
 
     if (eventType === 'user.deleted') {
-      const { id } = evt.data;
-      const val = id ?? "" ; 
+      const val = id ?? "";
       const deletedUser = await deleteUser(val);
 
       return NextResponse.json({ message: 'User deleted successfully', user: deletedUser });
     }
 
-    return NextResponse.json({ message: 'Unhandled event type', eventType });
+    return NextResponse.json({ message: 'Unhandled event type', eventType, id });
   } catch (error) {
-    console.error('Error processing event:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error(`Error processing event (ID: ${id}):`, error);
+
+    return NextResponse.json({
+      error: `Internal server error`,
+      id: id || 'Unknown',
+    }, { status: 500 });
   }
 }
